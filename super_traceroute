@@ -1,0 +1,47 @@
+#!/usr/bin/env python
+#coding:utf-8
+#author:sunzy2@gmail.com
+
+import sys
+import os 
+import re 
+import urllib2
+import subprocess as sb
+import json
+
+
+def getlocation(ip):
+    url = 'http://ip.taobao.com/service/getIpInfo.php?ip='+ip
+    req = urllib2.Request(url)
+    res = urllib2.urlopen(req)
+    page = res.read()
+    direct = json.loads(page)
+	#return "Country:"+direct['data']['country']+" Area:"+direct['data']['area']+" City:"+direct['data']['city']+" ISP:"+direct['data']['isp']
+    return direct['data']['country']+direct['data']['area']+direct['data']['city']+direct['data']['isp']
+	
+def getip(txt):	
+    s = re.findall(r'\d+.\d+.\d+.\d+',txt)
+    if s:
+        return s[0]	
+    else:
+        return '*'
+
+def main():
+    ip = sys.argv[1]
+    f = 'traceroute -n %s' % ip
+    p = sb.Popen(f,shell=True,stdout=sb.PIPE)
+    while True:
+        line = p.stdout.readline()
+        if not line:
+            break
+        if getip(line) == '*':
+            print line.strip()
+            continue
+        else:
+            print	line.strip()+' '+getlocation(getip(line))
+    
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        pass
