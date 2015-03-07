@@ -36,7 +36,7 @@ def main():
         if not line:
             break
         if getip(line) == '*':
-            print line.strip()
+            print line.replace("\n", "")
             continue
         else:
             print line.replace("\n", "") + ' ' + getlocation(getip(line))
